@@ -26,13 +26,18 @@ int main(void)
         BeginDrawing();
         
 
-            ClearBackground(RAYWHITE);
+            // ClearBackground(RAYWHITE);
             DrawTextureRec(canvas.texture, (Rectangle){0, 0, (float)canvas.texture.width,(float)canvas.texture.height }, (Vector2) {0, 0}, WHITE);
 
-            // a circle for reference
-            DrawCircle(GetMouseX(), GetMouseY(), 3, MAGENTA );
 
-
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+                BeginTextureMode(canvas);
+                DrawCircle((int)GetMouseX(), (int)GetMouseY(), 30, MAGENTA);
+                EndTextureMode();
+            } else {
+                // a circle for reference
+                DrawCircle(GetMouseX(), GetMouseY(), 3, MAGENTA );
+            }
 
 
             // DrawText("A simple circle", 10, 10, 20, LIGHTGRAY);
