@@ -16,11 +16,13 @@ int main(void)
     {
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            // ClearBackground(RAYWHITE);
+
+            ball_pos = GetMousePosition();
 
             DrawText("A simple circle", 10, 10, 20, LIGHTGRAY);
 
-            DrawCircleV(ball_pos, 50, MAROON);
+            DrawCircleV(ball_pos, 20, MAROON);
 
         EndDrawing();
     }
