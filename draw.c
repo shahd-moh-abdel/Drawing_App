@@ -1,6 +1,7 @@
 
 #include "raylib.h"
-
+#include <stdio.h>
+#include <time.h>
 #define MAX_COLOR_COUNT  6
 
 
@@ -15,6 +16,23 @@ int main(void)
         BLACK, RED, GREEN, YELLOW, BLUE, PINK
     };
     int color_selected = 0;
+    //Date and time (for image name)
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char image_name[100];
+    snprintf(
+        image_name,
+        sizeof(image_name),
+        "image_%02d_%02d_%02d_%02d_%02d_%02d.png",
+        t->tm_mday,
+        t->tm_mon + 1,
+        t->tm_year % 100,
+        t->tm_hour,
+        t->tm_min,
+         t->tm_sec
+    );
+    
+
 
     InitWindow(screenWidth, screenHeight, "simple art");
 
@@ -46,7 +64,7 @@ int main(void)
                 EndTextureMode();
             } else {
                 // a circle for reference
-                DrawCircle(GetMouseX(), GetMouseY(), 3, colors[color_selected] );
+                DrawCircle(GetMouseX(), GetMouseY(), brush_size, colors[color_selected] );
             }
 
             //keys controls
@@ -55,14 +73,17 @@ int main(void)
                 ClearBackground(WHITE);
                 EndTextureMode();
             } else if (IsKeyDown(KEY_S)) {
-                //save
-            } else if (IsKeyDown(KEY_UP)){
+                Image image = LoadImageFromTexture(canvas.texture);
+                ImageFlipVertical(&image);
+                ExportImage(image, image_name);
+                UnloadImage(image);
+            } else if (IsKeyPressed(KEY_UP)){
                 if (brush_size >= max_brush_size){
                     brush_size = max_brush_size;
                 } else {
                     brush_size += 2.0;
                 }
-            } else if (IsKeyDown(KEY_DOWN)){
+            } else if (IsKeyPressed(KEY_DOWN)){
                 if(brush_size <= min_brush_size){
                     brush_size = min_brush_size;
                 } else {
