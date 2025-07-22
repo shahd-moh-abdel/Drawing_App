@@ -2,8 +2,9 @@
 #include "raylib.h"
 #include <stdio.h>
 #include <time.h>
-#define MAX_COLOR_COUNT  6
-
+#define MAX_COLOR_COUNT  8
+#define BACKGROUND_COLOR (Color) {152, 161, 188, 255}
+#define TEXT_COLOR (Color) {41, 44, 78, 255}
 
 int main(void)
 {
@@ -13,7 +14,7 @@ int main(void)
     float max_brush_size = 60.0f;
     float min_brush_size = 10.0;
     Color colors[MAX_COLOR_COUNT] = {
-        BLACK, RED, GREEN, YELLOW, BLUE, PINK
+        BLACK, RED, GREEN, YELLOW, BLUE, PINK, BROWN, ORANGE
     };
     int color_selected = 0;
     //Date and time (for image name)
@@ -32,13 +33,32 @@ int main(void)
          t->tm_sec
     );
     
+    //define color recs data
+    Rectangle colors_recs[MAX_COLOR_COUNT] = { 0 };
+
+    int colors_per_raw = 4;
+    int rect_width = 40;
+    int rect_height = 40;
+    int spacing = 4;
+    int start_x = 788; //left margin
+    int start_y = 50;
+
+    for (int i = 0; i  < MAX_COLOR_COUNT; i++)
+    {
+        int row = i / colors_per_raw;
+        int col = i % colors_per_raw;
+        colors_recs[i].x = start_x + (rect_width + spacing) * col;
+        colors_recs[i].y = start_y + (rect_height + spacing) * row;
+        colors_recs[i].width = rect_width;
+        colors_recs[i].height = rect_height;
+    }
 
 
     InitWindow(screenWidth, screenHeight, "simple art");
 
     // Vector2 ball_pos  = {(float)screenWidth/2, (float)screenHeight/2}; 
 
-    RenderTexture2D canvas = LoadRenderTexture(screenWidth, screenHeight);
+    RenderTexture2D canvas = LoadRenderTexture(screenWidth - 300, screenHeight);
 
     //clear texture before the loop
     BeginTextureMode(canvas);
@@ -54,7 +74,7 @@ int main(void)
         BeginDrawing();
         
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(BACKGROUND_COLOR);
             DrawTextureRec(canvas.texture, (Rectangle){0, 0, (float)canvas.texture.width,(float)-canvas.texture.height }, (Vector2) {0, 0}, WHITE);
 
 
@@ -105,6 +125,20 @@ int main(void)
             // DrawText("A simple circle", 10, 10, 20, LIGHTGRAY);
 
             // DrawCircleV(mouse_pos, 20, MAROON);
+
+            //Tools Panel
+            DrawRectangle(start_x - 10, start_y - 30, 192, 120, WHITE);
+            DrawRectangle(778, 150, 84, 40, WHITE);
+            DrawRectangle(884, 150, 84, 40, WHITE);
+            DrawText("SAVE!", 788, 160, 16, TEXT_COLOR);
+            DrawText("CLEAR", 894, 160, 16, TEXT_COLOR);
+            DrawText("COLORS:", start_x, start_y - 20, 16, TEXT_COLOR);
+            for (int i = 0; i < MAX_COLOR_COUNT; i++){
+                DrawRectangleRec(colors_recs[i], colors[i]);
+            }
+
+
+
         EndDrawing();
     }
     CloseWindow();       
