@@ -1,1 +1,1 @@
-cc draw.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+cc draw.c -o drawing_app -lraylib -lGL -lm -lpthread -ldl -lrt -lX11

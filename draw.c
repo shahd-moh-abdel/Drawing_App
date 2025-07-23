@@ -1,6 +1,6 @@
 
-#include <stdio.h>
 #include "raylib.h"
+#include <stdio.h>
 #include <time.h>
 #define MAX_COLOR_COUNT  8
 #define BACKGROUND_COLOR (Color) {152, 161, 188, 255}
@@ -8,23 +8,24 @@
 
 int main(void)
 {
+    //screen
     const int screenWidth = 1024;
     const int screenHeight = 760;
+    //brush
     float brush_size = 20.0f;
     float max_brush_size = 60.0f;
     float min_brush_size = 10.0;
+    //colors
     Color colors[MAX_COLOR_COUNT] = {
         BLACK, RED, GREEN, YELLOW, BLUE, PINK, BROWN, ORANGE
     };
     int color_selected = 0;
     int color_mouse_hover = 0;
-
     //Save and clear
     Rectangle btn_save = {778, 150, 84, 40};
     bool btn_save_mouse_hover = false; 
     Rectangle btn_clear = {884, 150, 84, 40};
     bool btn_clear_mouse_hover = false;
-
     //Date and time (for image name)
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
@@ -40,7 +41,6 @@ int main(void)
         t->tm_min,
          t->tm_sec
     );
-    
     //define color recs data
     Rectangle colors_recs[MAX_COLOR_COUNT] = { 0 };
 
@@ -61,10 +61,8 @@ int main(void)
         colors_recs[i].height = rect_height;
     }
 
+    //window and texture
     InitWindow(screenWidth, screenHeight, "simple art");
-
-    // Vector2 ball_pos  = {(float)screenWidth/2, (float)screenHeight/2}; 
-
     RenderTexture2D canvas = LoadRenderTexture(screenWidth - 300, screenHeight);
 
     //clear texture before the loop
@@ -84,16 +82,21 @@ int main(void)
             ClearBackground(BACKGROUND_COLOR);
             DrawTextureRec(canvas.texture, (Rectangle){0, 0, (float)canvas.texture.width,(float)-canvas.texture.height }, (Vector2) {0, 0}, WHITE);
 
-            //choose color with mouse
-            for(int i = 0; i < MAX_COLOR_COUNT; i++){
+            //color handling with keys
+            if (IsKeyPressed(KEY_LEFT)) color_selected++;
+            else if(IsKeyPressed(KEY_RIGHT)) color_selected--;
+
+            if (color_selected >= MAX_COLOR_COUNT) color_selected = MAX_COLOR_COUNT -1 ;
+            else if (color_selected < 0 ) color_selected = 0;
+
+            //color handling with mouse
+            for(int i = 0; i < MAX_COLOR_COUNT; i++)
+            {
                 if(CheckCollisionPointRec(mouse_pos, colors_recs[i]))
                 {
                     color_mouse_hover = i;
                     break;
-                } else 
-                {
-                    color_mouse_hover = -1;
-                }
+                } else color_mouse_hover = -1;
             }
 
             if((color_mouse_hover >= 0) && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ) 
@@ -101,7 +104,9 @@ int main(void)
                 color_selected = color_mouse_hover;
             }
 
-            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            //draw when mouse down 
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) 
+            {
                 BeginTextureMode(canvas);
                 DrawCircle((int)GetMouseX(), (int)GetMouseY(), brush_size, colors[color_selected]);
                 EndTextureMode();
@@ -111,7 +116,7 @@ int main(void)
                 DrawCircle(GetMouseX(), GetMouseY(), brush_size, colors[color_selected] );
             }
 
-            //check for hover
+            //check for hover (save / clear)
             if(CheckCollisionPointRec(mouse_pos, btn_save)) 
             {
                 btn_save_mouse_hover = true;
@@ -128,22 +133,29 @@ int main(void)
             }
 
             //keys controls
-            if (IsKeyDown(KEY_C) || (btn_clear_mouse_hover && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))){
+            if (IsKeyDown(KEY_C) || (btn_clear_mouse_hover && IsMouseButtonReleased(MOUSE_BUTTON_LEFT)))
+            {
+                //clear background
                 BeginTextureMode(canvas);
                 ClearBackground(WHITE);
                 EndTextureMode();
-            } else if (IsKeyDown(KEY_S) || (btn_save_mouse_hover && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))) {
+            } else if (IsKeyDown(KEY_S) || (btn_save_mouse_hover && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))) 
+            {
+                //save image
                 Image image = LoadImageFromTexture(canvas.texture);
                 ImageFlipVertical(&image);
                 ExportImage(image, image_name);
                 UnloadImage(image);
-            } else if (IsKeyPressed(KEY_UP)){
+            } else if (IsKeyPressed(KEY_UP))
+            {
+                //change brush size
                 if (brush_size >= max_brush_size){
                     brush_size = max_brush_size;
                 } else {
                     brush_size += 2.0;
                 }
-            } else if (IsKeyPressed(KEY_DOWN)){
+            } else if (IsKeyPressed(KEY_DOWN))
+            {
                 if(brush_size <= min_brush_size){
                     brush_size = min_brush_size;
                 } else {
@@ -151,24 +163,18 @@ int main(void)
                 }
             } 
 
-            //color handling
-            if (IsKeyPressed(KEY_LEFT)) color_selected++;
-            else if(IsKeyPressed(KEY_RIGHT)) color_selected--;
-
-            if (color_selected >= MAX_COLOR_COUNT) color_selected = MAX_COLOR_COUNT -1 ;
-            else if (color_selected < 0 ) color_selected = 0;
-
             //Tools Panel- Ignore the hard coded numbers :)
-            DrawRectangle(724, 0, 300, screenHeight,BACKGROUND_COLOR);
+            DrawRectangle(724, 0, 300, screenHeight,BACKGROUND_COLOR); // the side panel
             DrawRectangle(start_x - 10, start_y - 30, 192, 120, WHITE);
+            //save
             DrawRectangleRec(btn_save, WHITE);
             DrawRectangleLinesEx(btn_save, 3, btn_save_mouse_hover ? RED : TEXT_COLOR);
             DrawText("SAVE!", 788, 160, 16, btn_save_mouse_hover ? RED : TEXT_COLOR);
-                    
+            //clear
             DrawRectangleRec(btn_clear, WHITE);
             DrawRectangleLinesEx(btn_clear, 3, btn_clear_mouse_hover ? RED : TEXT_COLOR);
             DrawText("CLEAR", 894, 160, 16, btn_clear_mouse_hover ? RED : TEXT_COLOR);
-
+            //color rectangles
             DrawText("COLORS:", start_x, start_y - 20, 16, TEXT_COLOR);
             for (int i = 0; i < MAX_COLOR_COUNT; i++){
                 DrawRectangleRec(colors_recs[i], colors[i]);
@@ -181,5 +187,3 @@ int main(void)
     CloseWindow();       
     return 0;
 }
-
-
