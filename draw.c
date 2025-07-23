@@ -17,6 +17,7 @@ int main(void)
         BLACK, RED, GREEN, YELLOW, BLUE, PINK, BROWN, ORANGE
     };
     int color_selected = 0;
+    int color_mouse_hover = 0;
 
     //Save and clear
     Rectangle btn_save = {778, 150, 84, 40};
@@ -83,12 +84,29 @@ int main(void)
             ClearBackground(BACKGROUND_COLOR);
             DrawTextureRec(canvas.texture, (Rectangle){0, 0, (float)canvas.texture.width,(float)-canvas.texture.height }, (Vector2) {0, 0}, WHITE);
 
+            //choose color with mouse
+            for(int i = 0; i < MAX_COLOR_COUNT; i++){
+                if(CheckCollisionPointRec(mouse_pos, colors_recs[i]))
+                {
+                    color_mouse_hover = i;
+                    break;
+                } else 
+                {
+                    color_mouse_hover = -1;
+                }
+            }
+
+            if((color_mouse_hover >= 0) && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ) 
+            {
+                color_selected = color_mouse_hover;
+            }
 
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
                 BeginTextureMode(canvas);
                 DrawCircle((int)GetMouseX(), (int)GetMouseY(), brush_size, colors[color_selected]);
                 EndTextureMode();
-            } else {
+            } else
+            {
                 // a circle for reference
                 DrawCircle(GetMouseX(), GetMouseY(), brush_size, colors[color_selected] );
             }
@@ -141,6 +159,7 @@ int main(void)
             else if (color_selected < 0 ) color_selected = 0;
 
             //Tools Panel- Ignore the hard coded numbers :)
+            DrawRectangle(724, 0, 300, screenHeight,BACKGROUND_COLOR);
             DrawRectangle(start_x - 10, start_y - 30, 192, 120, WHITE);
             DrawRectangleRec(btn_save, WHITE);
             DrawRectangleLinesEx(btn_save, 3, btn_save_mouse_hover ? RED : TEXT_COLOR);
